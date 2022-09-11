@@ -1,0 +1,14 @@
+{
+  "name": "lyucean/altyyasha_bot",
+  "description": "A bot that makes one girl a little happier",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "lyucean",
+      "email": "lyucean@gmail.com"
+    }
+  ],
+  "require": {
+  }
+}
