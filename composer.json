@@ -10,5 +10,43 @@
     }
   ],
   "require": {
+    "php": "^7.4",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "thingengineer/mysqli-database-class": "dev-master",
+    "ext-mbstring": "*",
+    "airbrake/phpbrake": "^0.7.3",
+    "lyucean/telegram_bot_php": "dev-forked",
+    "ext-iconv": "*",
+    "robmorgan/phinx": "^0.12.3",
+    "sentry/sdk": "^3.0@beta",
+    "sentry/sentry": "^3.0@beta",
+    "php-http/curl-client": "^2.1",
+    "vlucas/phpdotenv": "^5.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "altyyasha_bot\\model\\": "model",
+      "altyyasha_bot\\core\\": "core",
+      "altyyasha_bot\\command\\": "command"
+    },
+    "files": [
+      "config.php",
+      "app/helper.php",
+      "app/error.php",
+      "app/metric.php"
+    ]
+  },
+  "config": {
+    "github-oauth": {
+      "github.com": "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"
+    },
+    "optimize-autoloader": true
+  },
+  "repositories": {
+    "lyucean": {
+      "type": "vcs",
+      "url": "https://github.com/lyucean/telegram_bot_php"
+    }
   }
 }
