@@ -303,7 +303,7 @@ class DB
 
         $result = $this->db->getOne("chat_history");
 
-        return $result['first_name'].' '.$result['last_name'].' '.$result['user_name'];
+        return $result['first_name'].' '.$result['last_name'].' @'.$result['user_name'];
     }
 
     // Right Answer -----------------------------------------------
