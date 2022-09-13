@@ -32,7 +32,6 @@ class Start
 
         $message[] = 'Привет!';
         $message[] = 'Жду твоих вариантов😏';
-        $message[] = 'Да начнутся голодные игры 😆';
         $this->telegram->sendMessage(
             [
                 'chat_id' => $this->chat_id,
