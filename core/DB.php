@@ -12,15 +12,15 @@ class DB
     public function __construct()
     {
         $this->db = new MysqliDb(
-            array(
-                'host' => $_ENV['DB_HOST'],
-                'username' => $_ENV['DB_USERNAME'],
-                'password' => $_ENV['DB_PASSWORD'],
-                'db' => $_ENV['DB_NAME'],
-                'port' => $_ENV['DB_PORT'],
-                'prefix' => '',
-                'charset' => $_ENV['DB_CHARSET']
-            )
+          array(
+            'host' => $_ENV['DB_HOST'],
+            'username' => $_ENV['DB_USERNAME'],
+            'password' => $_ENV['DB_PASSWORD'],
+            'db' => $_ENV['DB_NAME'],
+            'port' => $_ENV['DB_PORT'],
+            'prefix' => '',
+            'charset' => $_ENV['DB_CHARSET']
+          )
         );
 
         return $this;
@@ -117,6 +117,21 @@ class DB
     }
 
     /**
+     * Selects which message to send.
+     * @param $chat_id
+     * @return array|MysqliDb|string
+     * @throws Exception
+     */
+    public function getMessagesToday($chat_id)
+    {
+        $this->db->where("chat_id", $chat_id);
+        $this->db->where("DATE(date_added) = DATE(NOW())");
+        $message = $this->db->get("message");
+
+        return count($message);
+    }
+
+    /**
      * @param $data
      * @return array|MysqliDb|string
      * @throws Exception
@@ -148,7 +163,7 @@ class DB
     }
 
     /**
-     * @param array $filter
+     * @param  array  $filter
      * @return array
      * @throws Exception
      */
@@ -164,7 +179,7 @@ class DB
     }
 
     /**
-     * @param int $chat_id
+     * @param  int  $chat_id
      * @return array
      * @throws Exception
      */
@@ -198,10 +213,10 @@ class DB
     {
         $this->db->where('chat_id', $chat_id);
         return $this->db->update(
-            'message',
-            [
-                'display' => 0
-            ]
+          'message',
+          [
+            'display' => 0
+          ]
         );
     }
 
@@ -213,17 +228,17 @@ class DB
     public function addMessage($data)
     {
         $this->db->insert(
-            'message',
-            [
-                'message_id' => $data['message_id'],
-                'chat_id' => $data['chat_id'],
-                'text' => $this->db->escape(trim($data['text'])),
-                'image' => $data['image'] ?? '',
-                'view' => 0,
-                'date_added' => $this->db->now(),
-                'date_reminder' => $this->db->now(),
-                'display' => 1,
-            ]
+          'message',
+          [
+            'message_id' => $data['message_id'],
+            'chat_id' => $data['chat_id'],
+            'text' => $this->db->escape(trim($data['text'])),
+            'image' => $data['image'] ?? '',
+            'view' => 0,
+            'date_added' => $this->db->now(),
+            'date_reminder' => $this->db->now(),
+            'display' => 1,
+          ]
         );
     }
 
@@ -236,11 +251,11 @@ class DB
     {
         $this->db->where('message_id', $message_id);
         $this->db->update(
-            'message',
-            [
-                'date_reminder' => $this->db->now(),
-                'view' => $this->db->inc()
-            ]
+          'message',
+          [
+            'date_reminder' => $this->db->now(),
+            'view' => $this->db->inc()
+          ]
         );
     }
 
@@ -263,8 +278,8 @@ class DB
 
         if (isset($changes)) {
             $this->db->update(
-                'message',
-                $changes
+              'message',
+              $changes
             );
         }
     }
@@ -276,28 +291,80 @@ class DB
         $this->db->insert('chat_history', $data);
     }
 
-    // WaitingCommand ---------------------------------------------
-    public function getWaitingCommand($chat_id)
+    /**
+     * @param $chat_id
+     * @return string
+     * @throws Exception
+     */
+    public function getNameByChatHistory($chat_id): string
     {
         $this->db->where("chat_id", $chat_id);
-        return $this->db->getOne("command_waiting", 'command');
+        $this->db->orderBy("date_added", "desc");
+
+        $result = $this->db->getOne("chat_history");
+
+        return $result['first_name'].' '.$result['last_name'].' '.$result['user_name'];
     }
 
-    public function cleanWaitingCommand($chat_id)
+    // Right Answer -----------------------------------------------
+
+    /**
+     * get Right Answer
+     * @return array|string|null
+     * @throws Exception
+     */
+
+    public function getRightAnswer()
     {
-        $this->db->where("chat_id", $chat_id);
-        return $this->db->delete('command_waiting');
+        $this->db->orderBy("status", "desc");
+        return $this->db->getOne("right_answers");
     }
 
-    public function setWaitingCommand($chat_id, $command)
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function endRightAnswer($winner): bool
     {
-        $this->db->replace(
-            'command_waiting',
-            [
-                'chat_id' => $chat_id,
-                'date_added' => $this->db->now(),
-                'command' => $this->db->escape($command)
-            ]
+        return $this->db->update(
+          'right_answers',
+          [
+            'status' => 0,
+            'winner' => $this->db->escape(trim($winner))
+          ]
+        );
+    }
+    // PhrasesMessages ----------------------------------------------------
+
+    /**
+     * @return array|string
+     * @throws Exception
+     */
+    public function getPhrasesMessagesPrepared()
+    {
+        $this->db->orderBy("date_reminder", "asc");
+        $phrases_messages = $this->db->getOne("phrases_messages");
+
+        // Add the information that we have already shown this message
+        $this->addDateReminderPhrasesMessages($phrases_messages['phrases_messages_id']);
+
+        return $phrases_messages['text'];
+    }
+
+    /**
+     * @param $phrases_messages_id
+     * @return void
+     * @throws Exception
+     */
+    public function addDateReminderPhrasesMessages($phrases_messages_id)
+    {
+        $this->db->where('phrases_messages_id', $phrases_messages_id);
+        $this->db->update(
+          'phrases_messages',
+          [
+            'date_reminder' => $this->db->now(),
+            'view' => $this->db->inc()
+          ]
         );
     }
 }

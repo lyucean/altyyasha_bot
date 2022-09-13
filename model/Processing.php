@@ -51,15 +51,7 @@ class Processing extends Model
             // If it's an independent command, it has the highest priority.
             // Necessarily, the very first
             if (mb_substr($text, 0, 1, 'UTF-8') == '/') {
-                // Clear command_waiting
-                $this->db->cleanWaitingCommand($chat_id);
-
-                // if it is a request for a specific message
-                if (preg_match('/^\/_[0-9]+$/', $text)) {
-                    (new Now($this->telegram))->get(substr(strrchr($text, "_"), 1));
-                    continue;
-                }
-
+                
                 // Let's look for our command
                 $action = new Action($text);
                 $action->execute($this->telegram);

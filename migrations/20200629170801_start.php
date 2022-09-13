@@ -28,12 +28,6 @@ final class Start extends AbstractMigration
             ->addColumn('date_added', 'datetime')
             ->create();
 
-        $table = $this->table('command_waiting', ['id' => false, 'primary_key' => 'chat_id']);
-        $table->addColumn('chat_id', 'integer', ['null' => false])
-            ->addColumn('command', 'string', ['limit' => 100])
-            ->addColumn('date_added', 'datetime')
-            ->create();
-
         $table = $this->table('message', ['id' => false, 'primary_key' => 'message_id']);
         $table->addColumn('message_id', 'integer', ['null' => false])
             ->addColumn('chat_id', 'integer', ['null' => false])
@@ -53,7 +47,6 @@ final class Start extends AbstractMigration
             ->addColumn('quantity', 'integer', ['default' => 1])
             ->addColumn('date_modified', 'datetime')
             ->create();
-
 
         $table = $this->table('schedule_daily', ['id' => 'schedule_daily_id']);
         $table->addColumn('chat_id', 'integer', ['null' => false])

@@ -28,3 +28,4 @@ $dotenv->required('DB_NAME_PHINX_LOG');
 
 $dotenv->required('MAX_OF_MESSAGES_PER_DAY');
 $dotenv->required('MAX_LINE_LENGTH');
+$dotenv->required('MAX_NUM_ATTEMPTS_PER_DAY');

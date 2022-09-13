@@ -11,7 +11,7 @@ class Message
     private int $chat_id;
     private int $message_id = 0;
     private DB $db;
-        const EMOJI_ICON = '🙃  ';
+    const EMOJI_ICON = '🙃  ';
 
     public function __construct($telegram)
     {
@@ -23,13 +23,13 @@ class Message
     public function __debugInfo()
     {
         return [
-            'message_id' => $this->message_id,
+          'message_id' => $this->message_id,
         ];
     }
 
     /**
      * Отправляет сообщение в чат
-     * @param array $data
+     * @param  array  $data
      */
     public function send(array $data)
     {
@@ -55,64 +55,18 @@ class Message
     public function edit()
     {
         $this->send(
-            [
-                'text' => '😈 Отправленный вариант изменить уже нельзя!'
-            ]
+          [
+            'text' => '😈 Отправленный вариант изменить уже нельзя!'
+          ]
         );
     }
 
     public function addImage()
     {
-        // take the highest resolution
-//        $array = $this->telegram->Photo();
-//        $file = $this->telegram->getFile(array_pop($array)['file_id']);
-//
-//        if (!array_key_exists('ok', $file) || !array_key_exists('result', $file)) {
-//            (new Error($this->telegram))->send('Я не смог скачать картинку, сервер недоступен.');
-//        }
-//
-//        $file_path = $file['result']['file_path'];
-//        $file_name = $file['result']['file_unique_id'] . '.jpg';
-//
-//        $url_on_server = 'https://api.telegram.org/file/bot' . $_ENV['TELEGRAM_TOKEN'] . '/' . $file_path;
-//
-//        $folder = rand(10, 999) . '/';
-//
-//        if (!is_dir($_ENV['DIR_FILE'] . $folder)) {
-//            mkdir($_ENV['DIR_FILE'] . $folder);
-//        }
-//
-//        file_put_contents(
-//            $_ENV['DIR_FILE'] . $folder . $file_name,
-//            file_get_contents($url_on_server)
-//        );
-//
-//        $this->message_id = $this->telegram->MessageID();
-//
-//        $this->db->addMessage(
-//            [
-//                'chat_id' => $this->chat_id,
-//                'text' => $this->telegram->Caption(),
-//                'image' => $folder . $file_name,
-//                'message_id' => $this->telegram->MessageID(),
-//            ]
-//        );
-//
-//        $option = [
-//            [
-//                $this->telegram->buildInlineKeyBoardButton(
-//                    'Отменить',
-//                    $url = '',
-//                    '/message/cancel?message_id=' . $this->message_id
-//                ),
-//            ],
-//        ];
-
         $this->send(
-            [
-//                'reply_markup' => $this->telegram->buildInlineKeyBoard($option),
-                'text' => 'Картинка? Ты серьёзно? 🤣🤣🤣'
-            ]
+          [
+            'text' => 'Картинка? Ты серьёзно? 🤣🤣🤣'
+          ]
         );
     }
 
@@ -122,44 +76,64 @@ class Message
             (new Error($this->telegram))->send('🥲 Я не знаю, как работать с этим типом сообщений.');
             return;
         }
+        $count_answer = $this->db->getMessagesToday($this->chat_id);
 
-        // Проверка на дубли, можно писать. Что кто-то уже пробовал этот вариант
-//        if ($this->db->existCheckMessage(
-//            [
-//                'chat_id' => $this->chat_id,
-//                'text' => $this->telegram->Text(),
-//            ]
-//        )) {
-//            $message = $this->db->getMessage(['text' => $this->telegram->Text()]);
-//
-//            (new Error($this->telegram))->send(
-//                'Этот вариант уже был))'
-//            );
-//            return;
-//        }
-        
-        // Проверка, что количество запросов за сегодня не больше 5
-        
-        
-        $this->message_id = $this->telegram->MessageID();
+        // Проверка, что количество запросов за сегодня не больше MAX_NUM_ATTEMPTS_PER_DAY
+        if ($_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] < $count_answer) {
+            $this->send(
+              [
+                'text' => 'Достигнут лимит попыток угадать на сегодня!'.random_reaction()
+                  .PHP_EOL.'Возвращайся завтра) 😇'
+              ]
+            );
+            return;
+        }
 
-        // сохраним сообщение для других подарков)
+        // сохраним сообщение для других подарков
         $this->db->addMessage(
-            [
-                'chat_id' => $this->chat_id,
-                'text' => $this->telegram->Text(),
-                'message_id' => $this->telegram->MessageID(),
-            ]
+          [
+            'chat_id' => $this->chat_id,
+            'text' => $this->telegram->Text(),
+            'message_id' => $this->telegram->MessageID(),
+          ]
         );
-        
 
-        
-        // Проверка на правду
-        
-        $this->send(
-            [
-                'text' => '😆 Не угадала !!!'
-            ]
-        );
+        // Проверка, на правильный ответ
+        $answer = $this->db->getRightAnswer();
+
+
+        // Отправим всем сообщения, кто у нас победитель!
+        if ($answer['status'] == 0) {
+            $this->send(
+              [
+                'text' => '🥳У нас есть победитель! 🥳'.random_reaction()
+                  .PHP_EOL.'Это: '.$answer['winner']
+              ]
+            );
+            return;
+        }
+
+        // Проверка, на правильный ответ
+        if ($answer['text'] == ltrim(rtrim(mb_strtolower($this->telegram->Text())))) {
+            $this->send(
+              [
+                'text' => '🥳️❤🥳️Угадала !!!🥳️❤️🥳'
+              ]
+            );
+
+            $this->db->endRightAnswer($this->db->getNameByChatHistory($this->chat_id));
+        } else {
+            $phrases_messages = $this->db->getPhrasesMessagesPrepared();
+
+            $num_attempts = $_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] - $count_answer - 1;
+            $string_attempts = rus_ending($num_attempts, 'попытка', 'попытки', 'попыток');
+
+            $this->send(
+              [
+                'text' => $phrases_messages.' '.random_reaction()
+                  .PHP_EOL.PHP_EOL.' Осталось '.$num_attempts.' '.$string_attempts.' на сегодня '.random_reaction()
+              ]
+            );
+        }
     }
 }
