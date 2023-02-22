@@ -34,19 +34,24 @@ class Start
         $message[] = '🤠 Буэно диас!';
 
         // Отправим все открытые буквы
-        $message[] = 'Посмотрим, что у вас уже есть';
-        $message[] = '';
+        $message[] = 'Что уже есть:';
 
-        $message[] = 'Открытые буквы:';
-        $message[] = 'ы,ф,б,у,а,ы';
+        $arr_letters = $this->db->getOpenRightLetters();
+        if($arr_letters){
+            $message[] = 'Открытые буквы:';
+            $message[] = implode(", ", $arr_letters);
 
-        $message[] = '';
-        $message[] = 'Отгаданные слова:';
-        $message[] = '1. Тест1';
-        $message[] = '2. Тест2';
+        }
+
+        $arr_words = $this->db->getOpenRightWords();
+        if($arr_words){
+            $message[] = '';
+            $message[] = 'Отгаданные слова:';
+            $message[] = implode(", ", $arr_words);
+
+        }
 
         // Отправим все угаданные слова
-
         $message[] = '';
         $this->telegram->sendMessage(
             [

@@ -375,7 +375,7 @@ class DB
         return $this->db->getOne("right_words");
     }
 
-    public function addRightWords(array $words)
+    public function addRightWords(array $words): array
     {
         foreach ($words as $word) {
             $this->db->insert(
@@ -387,8 +387,33 @@ class DB
             );
         }
     }
+    public function getOpenRightWords(): array
+    {
+        $this->db->where("status", 1);
+
+        $arr = [];
+
+        foreach ($this->db->get("right_words") as $value){
+            $arr[] = $value['text'];
+        }
+
+        return $arr;
+    }
 
     // RightLetters ----------------------------------------------------
+    public function getOpenRightLetters()
+    {
+        $this->db->where("status", 1);
+
+        $letters = [];
+
+        foreach ($this->db->get("right_letters") as $letter){
+            $letters[] = $letter['text'];
+        }
+
+        return $letters;
+    }
+
     public function addRightLetters(array $letters)
     {
         foreach ($letters as $letter) {

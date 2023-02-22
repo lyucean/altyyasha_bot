@@ -28,7 +28,7 @@ class Insert
         $phrases = $this->telegram->Text();
 
         // удалим саму команду
-        $phrases = str_replace(['/insert'], '', $phrases);
+        $phrases = str_replace(['/insert', ',', '.'], '', $phrases);
         // преобразуем регистр.
         $phrases = mb_strtolower($phrases);
 
