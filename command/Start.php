@@ -31,19 +31,24 @@ class Start
             ]
         );*/
 
-        $message[] = '🤠 Буэно диас!';
+        $message[] = 'Буэно диас) Начнём 🤠 ';
+        $message[] = '';
 
         // Отправим все открытые буквы
-        $message[] = 'Что уже есть:';
 
-        $arr_letters = $this->db->getOpenRightLetters();
+        // Количество загаданных слов
+        $count_words = $this->db->getRightWordsCount();
+        $message[] = 'Загадано ' . $count_words . ' ' . rus_ending($count_words, 'слово', 'слова', 'слов');
+
+        $arr_letters = $this->db->getRightLettersOpen();
         if($arr_letters){
+            $message[] = '';
             $message[] = 'Открытые буквы:';
             $message[] = implode(", ", $arr_letters);
 
         }
 
-        $arr_words = $this->db->getOpenRightWords();
+        $arr_words = $this->db->getRightWordsOpen();
         if($arr_words){
             $message[] = '';
             $message[] = 'Отгаданные слова:';
