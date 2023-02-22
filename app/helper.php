@@ -6,9 +6,9 @@ if (!function_exists('ddf')) {
      * @param $var
      * @param  bool  $die
      */
-    function ddf($var, $die = true)
+    function ddf($var, bool $die = true)
     {
-        echo PHP_EOL.gmdate("i:s").' '.PHP_EOL;
+        echo PHP_EOL . gmdate("i:s").' '. PHP_EOL;
         print_r($var);
         flush();
         if ($die) {

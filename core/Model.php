@@ -1,7 +1,7 @@
 <?php
 
 
-namespace altyyasha_bot\core;
+namespace altyysha_bot\core;
 
 use Telegram;
 

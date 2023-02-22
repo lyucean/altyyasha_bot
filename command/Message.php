@@ -1,8 +1,8 @@
 <?php
 
-namespace altyyasha_bot\command;
+namespace altyysha_bot\command;
 
-use altyyasha_bot\core\DB;
+use altyysha_bot\core\DB;
 use Telegram;
 
 class Message
@@ -56,7 +56,7 @@ class Message
     {
         $this->send(
           [
-            'text' => '😈 Отправленный вариант изменить уже нельзя!'
+            'text' => '😈 Отправленный вариант изменять уже нельзя!'
           ]
         );
     }
@@ -65,7 +65,7 @@ class Message
     {
         $this->send(
           [
-            'text' => 'Картинка? Ты серьёзно? 🤣🤣🤣'
+            'text' => 'Я не умею работать с картинкой) 🤣'
           ]
         );
     }
@@ -76,6 +76,16 @@ class Message
             (new Error($this->telegram))->send('🥲 Я не знаю, как работать с этим типом сообщений.');
             return;
         }
+
+
+        $this->send(
+          [
+            'text' => random_reaction()
+              .PHP_EOL.PHP_EOL.' Заглушка сегодня '
+          ]
+        );
+        return;
+
         $count_answer = $this->db->getMessagesToday($this->chat_id);
 
         // Проверка, что количество запросов за сегодня не больше MAX_NUM_ATTEMPTS_PER_DAY

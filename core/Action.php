@@ -1,10 +1,10 @@
 <?php
 /** @noinspection PhpIncludeInspection */
 
-namespace altyyasha_bot\core;
+namespace altyysha_bot\core;
 
-use altyyasha_bot;
-use altyyasha_bot\command\Error;
+use altyysha_bot;
+use altyysha_bot\command\Error;
 use ReflectionClass;
 
 class Action
@@ -48,7 +48,7 @@ class Action
         } else {
             include_once($file);
 
-            $class = "altyyasha_bot\\command\\$class";
+            $class = "altyysha_bot\\command\\$class";
             $command = new $class($registry);
 
             $reflection = new ReflectionClass($class);

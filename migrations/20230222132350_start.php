@@ -53,5 +53,34 @@ final class Start extends AbstractMigration
             ->addColumn('date_time', 'datetime')
             ->addColumn('status_sent', 'integer', ['default' => 3])
             ->create();
+
+
+        $table = $this->table('right_answers', ['id' => 'right_answers_id']);
+        $table->addColumn('text', 'string', ['limit' => 4096])
+          ->addColumn('date_added', 'datetime')
+          ->addColumn('winner', 'string', ['limit' => 4096])
+          ->addColumn('status', 'integer', ['default' => 3])
+          ->create();
+
+        $table = $this->table('phrases_messages', ['id' => 'phrases_messages_id']);
+        $table->addColumn('text', 'string', ['limit' => 4096])
+          ->addColumn('view', 'integer', ['default' => 0])
+          ->addColumn('date_reminder', 'datetime')
+          ->create();
+
+        $table = $this->table('right_words', ['id' => 'right_words_id']);
+        $table->addColumn('text', 'string', ['limit' => 4096])
+          ->addColumn('date_opening', 'datetime', ['default' => '2000-01-01 00:00:00'])
+          ->addColumn('winner', 'string', ['limit' => 4096,'null' => true])
+          ->addColumn('status', 'integer', ['default' => 3])
+          ->create();
+
+        $table = $this->table('right_letters', ['id' => 'letters_id']);
+        $table->addColumn('text', 'string', ['limit' => 4096])
+          ->addColumn('reason', 'string', ['limit' => 4096,'null' => true])
+          ->addColumn('chat_id', 'string', ['limit' => 4096,'null' => true])
+          ->addColumn('status', 'integer', ['default' => 3])
+          ->addColumn('date_send', 'datetime', ['default' => '2000-01-01 00:00:00'])
+          ->create();
     }
 }

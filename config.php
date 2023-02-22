@@ -17,6 +17,7 @@ $dotenv->required('DIR_FILE')->notEmpty();
 
 $dotenv->required('TELEGRAM_TOKEN')->notEmpty();
 $dotenv->required('TELEGRAM_TEST_CHAT_ID')->notEmpty();
+$dotenv->required('TELEGRAM_ADMIN_CHAT_ID')->notEmpty();
 
 $dotenv->required('DB_HOST');
 $dotenv->required('DB_USERNAME');

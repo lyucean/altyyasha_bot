@@ -1,7 +1,7 @@
 <?php
 
 
-namespace altyyasha_bot\command;
+namespace altyysha_bot\command;
 
 use Exception;
 use Telegram;

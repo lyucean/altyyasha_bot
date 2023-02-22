@@ -1,5 +1,5 @@
 {
-  "name": "lyucean/altyyasha_bot",
+  "name": "lyucean/altyysha_bot",
   "description": "A bot that makes one girl a little happier",
   "minimum-stability": "stable",
   "license": "proprietary",
@@ -26,20 +26,18 @@
   },
   "autoload": {
     "psr-4": {
-      "altyyasha_bot\\model\\": "model",
-      "altyyasha_bot\\core\\": "core",
-      "altyyasha_bot\\command\\": "command"
+      "altyysha_bot\\model\\": "model",
+      "altyysha_bot\\core\\": "core",
+      "altyysha_bot\\command\\": "command"
     },
     "files": [
       "config.php",
-      "app/helper.php",
-      "app/error.php",
-      "app/metric.php"
+      "app/helper.php"
     ]
   },
   "config": {
     "github-oauth": {
-      "github.com": "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"
+      "github.com": "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"
     },
     "optimize-autoloader": true
   },

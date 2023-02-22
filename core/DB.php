@@ -1,7 +1,8 @@
 <?php
 
-namespace altyyasha_bot\core;
+namespace altyysha_bot\core;
 
+use altyysha_bot\command\Error;
 use Exception;
 use MysqliDb;
 
@@ -366,5 +367,49 @@ class DB
             'view' => $this->db->inc()
           ]
         );
+    }
+
+    // RightWords ----------------------------------------------------
+    public function getRightWordsStatus()
+    {
+        return $this->db->getOne("right_words");
+    }
+
+    public function addRightWords(array $words)
+    {
+        foreach ($words as $word) {
+            $this->db->insert(
+              'right_words',
+              [
+                'text' => $word,
+                'status' => 0
+              ]
+            );
+        }
+    }
+
+    // RightLetters ----------------------------------------------------
+    public function addRightLetters(array $letters)
+    {
+        foreach ($letters as $letter) {
+
+            // пропускаем пустые
+            if (empty($letter)) {
+                continue;
+            }
+
+            $data = [
+              'text' => $letter,
+              'status' => 0
+            ];
+
+            // 30% буквы, мы отроем на старте
+            if (rand(0, 10) < 5) {
+                $data['status'] = 1;
+                $data['reason'] = 'Start';
+            }
+
+            $this->db->insert('right_letters', $data);
+        }
     }
 }
