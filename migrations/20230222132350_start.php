@@ -20,7 +20,7 @@ final class Start extends AbstractMigration
     public function change(): void
     {
         $table = $this->table('chat_history', ['id' => 'chat_history_id']);
-        $table->addColumn('chat_id', 'integer', ['null' => false])
+        $table->addColumn('chat_id', 'biginteger', ['null' => false])
             ->addColumn('first_name', 'string', ['limit' => 100])
             ->addColumn('last_name', 'string', ['limit' => 100])
             ->addColumn('user_name', 'string', ['limit' => 100])
@@ -30,7 +30,7 @@ final class Start extends AbstractMigration
 
         $table = $this->table('message', ['id' => false, 'primary_key' => 'message_id']);
         $table->addColumn('message_id', 'integer', ['null' => false])
-            ->addColumn('chat_id', 'integer', ['null' => false])
+            ->addColumn('chat_id', 'biginteger', ['null' => false])
             ->addColumn('text', 'string', ['limit' => 4096])
             ->addColumn('image', 'string', ['limit' => 100])
             ->addColumn('view', 'integer', ['default' => 0])
@@ -40,7 +40,7 @@ final class Start extends AbstractMigration
             ->create();
 
         $table = $this->table('schedule', ['id' => false, 'primary_key' => 'chat_id']);
-        $table->addColumn('chat_id', 'integer', ['null' => false])
+        $table->addColumn('chat_id', 'biginteger', ['null' => false])
             ->addColumn('hour_start', 'integer', ['default' => 9])
             ->addColumn('hour_end', 'integer', ['default' => 14])
             ->addColumn('time_zone_offset', 'integer', ['default' => 3])
@@ -49,7 +49,7 @@ final class Start extends AbstractMigration
             ->create();
 
         $table = $this->table('schedule_daily', ['id' => 'schedule_daily_id']);
-        $table->addColumn('chat_id', 'integer', ['null' => false])
+        $table->addColumn('chat_id', 'biginteger', ['null' => false])
             ->addColumn('date_time', 'datetime')
             ->addColumn('status_sent', 'integer', ['default' => 3])
             ->create();
@@ -77,8 +77,8 @@ final class Start extends AbstractMigration
 
         $table = $this->table('right_letters', ['id' => 'letters_id']);
         $table->addColumn('text', 'string', ['limit' => 4096])
-          ->addColumn('reason', 'string', ['limit' => 4096,'null' => true])
-          ->addColumn('chat_id', 'string', ['limit' => 4096,'null' => true])
+          ->addColumn('reason', 'string', ['limit' => 4096])
+          ->addColumn('chat_id', 'string', ['limit' => 4096])
           ->addColumn('status', 'integer', ['default' => 3])
           ->addColumn('date_send', 'datetime', ['default' => '2000-01-01 00:00:00'])
           ->create();

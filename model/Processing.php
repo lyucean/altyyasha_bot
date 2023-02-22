@@ -4,7 +4,6 @@
 namespace altyysha_bot\model;
 
 use altyysha_bot\command\Message;
-use altyysha_bot\command\Now;
 use altyysha_bot\core\Action;
 use altyysha_bot\core\Model;
 
@@ -35,18 +34,18 @@ class Processing extends Model
 
             // для дев окружения всегда выкидываем ответ в консоль
             if ($_ENV['OC_ENV'] == 'dev') {
-                echo ddf($text, false);
+                echo ddf($chat_id . ': '. $text, false);
             }
 
             // Tracking activity
             $this->db->addChatHistory(
-                [
-                    'chat_id' => $this->telegram->ChatID(),
-                    'first_name' => $this->telegram->FirstName(),
-                    'last_name' => $this->telegram->LastName() ?? '',
-                    'user_name' => $this->telegram->Username() ?? '',
-                    'text' => $text
-                ]
+              [
+                'chat_id' => $this->telegram->ChatID(),
+                'first_name' => $this->telegram->FirstName(),
+                'last_name' => $this->telegram->LastName() ?? '',
+                'user_name' => $this->telegram->Username() ?? '',
+                'text' => $text
+              ]
             );
 
             // Если сообщение было отредактировано

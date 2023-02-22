@@ -292,6 +292,12 @@ class DB
         $this->db->insert('chat_history', $data);
     }
 
+    public function getChatHistoryIds()
+    {
+        $this->db->groupBy("chat_id");
+        return $this->db->get('chat_history', null, ['chat_id']);
+    }
+
     /**
      * @param $chat_id
      * @return string

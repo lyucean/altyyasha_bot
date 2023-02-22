@@ -78,13 +78,13 @@ class Message
         }
 
 
-        $this->send(
-          [
-            'text' => random_reaction()
-              .PHP_EOL.PHP_EOL.' Заглушка сегодня '
-          ]
-        );
-        return;
+//        $this->send(
+//          [
+//            'text' => random_reaction()
+//              .PHP_EOL.PHP_EOL.' Заглушка сегодня '
+//          ]
+//        );
+//        return;
 
         $count_answer = $this->db->getMessagesToday($this->chat_id);
 
@@ -111,9 +111,8 @@ class Message
         // Проверка, на правильный ответ
         $answer = $this->db->getRightAnswer();
 
-
         // Отправим всем сообщения, кто у нас победитель!
-        if ($answer['status'] == 0) {
+        if (!empty($answer) && $answer['status'] == 0) {
             $this->send(
               [
                 'text' => '🥳У нас есть победитель! 🥳'.random_reaction()
@@ -124,7 +123,7 @@ class Message
         }
 
         // Проверка, на правильный ответ
-        if ($answer['text'] == ltrim(rtrim(mb_strtolower($this->telegram->Text())))) {
+        if (!empty($answer) && $answer['text'] == ltrim(rtrim(mb_strtolower($this->telegram->Text())))) {
             $this->send(
               [
                 'text' => '🥳️❤🥳️Угадала !!!🥳️❤️🥳'
@@ -133,7 +132,7 @@ class Message
 
             $this->db->endRightAnswer($this->db->getNameByChatHistory($this->chat_id));
         } else {
-            $phrases_messages = $this->db->getPhrasesMessagesPrepared();
+            $phrases_messages = '';//$this->db->getPhrasesMessagesPrepared();
 
             $num_attempts = $_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] - $count_answer - 1;
             $string_attempts = rus_ending($num_attempts, 'попытка', 'попытки', 'попыток');
