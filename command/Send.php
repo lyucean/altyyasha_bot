@@ -30,16 +30,7 @@ class Send
         // удалим саму команду
         $phrases = str_replace(['/send'], '', $phrases);
 
-        $chats = $this->db->getChatHistoryIds();
+        (new Message($this->telegram))->sendAll('🧛' . $phrases);
 
-        // получим всех пользователей бота
-        foreach ($chats as $value) {
-            $this->telegram->sendMessage(
-              [
-                'chat_id' => $value['chat_id'],
-                'text' => '🧛' . $phrases
-              ]
-            );
-        }
     }
 }

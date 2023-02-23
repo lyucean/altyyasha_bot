@@ -52,8 +52,9 @@ class Start
         if($arr_words){
             $message[] = '';
             $message[] = 'Отгаданные слова:';
-            $message[] = implode(", ", $arr_words);
-
+            foreach ($arr_words as $value){
+                $message[] = $value['who'] . ": " .  $value['text'];
+            }
         }
 
         // Отправим все угаданные слова

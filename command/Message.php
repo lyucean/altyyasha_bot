@@ -52,6 +52,19 @@ class Message
         $this->telegram->sendMessage($answer);
     }
 
+    public function sendAll($text)
+    {
+        // отправим всем пользователям бота
+        foreach ($this->db->getChatHistoryIds() as $value) {
+            $this->telegram->sendMessage(
+              [
+                'chat_id' => $value['chat_id'],
+                'text' => $text
+              ]
+            );
+        }
+    }
+
     public function edit()
     {
         $this->send(
@@ -73,33 +86,26 @@ class Message
     public function add()
     {
         if (!in_array($this->telegram->getUpdateType(), ['message', 'reply_to_message'])) {
-            (new Error($this->telegram))->send('🥲 Я не знаю, как работать с этим типом сообщений.');
-            return;
+            return (new Error($this->telegram))->send('🥲 Я не знаю, как работать с этим типом сообщений.');
         }
-
-
-//        $this->send(
-//          [
-//            'text' => random_reaction()
-//              .PHP_EOL.PHP_EOL.' Заглушка сегодня '
-//          ]
-//        );
-//        return;
-
-        $count_answer = $this->db->getMessagesToday($this->chat_id);
 
         // Проверка, что количество запросов за сегодня не больше MAX_NUM_ATTEMPTS_PER_DAY
-        if ($_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] < $count_answer) {
-            $this->send(
+ /*       if ($_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] < $this->db->getMessagesToday($this->chat_id)) {
+            return (new Error($this->telegram))->send('Достигнут лимит попыток угадать на сегодня! '. random_reaction());
+        }*/
+
+        // проверим, что игра ещё продолжается
+        if (!$this->db->getRightAnswerUnguessed()) {
+
+            return $this->telegram->sendMessage(
               [
-                'text' => 'Достигнут лимит попыток угадать на сегодня!'.random_reaction()
-                  .PHP_EOL.'Возвращайся завтра) 😇'
+                'chat_id' => $this->chat_id,
+                'text' => 'Игра окончена 🥳'
               ]
             );
-            return;
         }
 
-        // сохраним сообщение для других подарков
+        // сохраним предложенный вариант
         $this->db->addMessage(
           [
             'chat_id' => $this->chat_id,
@@ -108,41 +114,69 @@ class Message
           ]
         );
 
-        // Проверка, на правильный ответ
-        $answer = $this->db->getRightAnswer();
+        // удалим саму команду
+        $possible = str_replace(['/send'], '', $this->telegram->Text());
 
-        // Отправим всем сообщения, кто у нас победитель!
-        if (!empty($answer) && $answer['status'] == 0) {
-            $this->send(
-              [
-                'text' => '🥳У нас есть победитель! 🥳'.random_reaction()
-                  .PHP_EOL.'Это: '.$answer['winner']
-              ]
-            );
-            return;
+        // очистим от лишнего
+        $possible = ltrim(rtrim(mb_strtolower(str_replace(array("\r\n", "\r", "\n"), '', $possible))));
+
+        // Сообщаем, что пользователь предложил вариант
+        $who = $this->db->getNameByChatHistory($this->chat_id);
+
+        $message[] = 'Вариант от '.$who.' '.'"'.$possible.'"';
+
+        // Если не отгаданы все слова, то проверка идёт на слова
+        if ($this->db->getRightWordsUnguessed()) {
+            // Проверим, что если такое слово
+            if ($this->db->getRightWordsCheck($possible)) {
+                $message[] = '';
+                $message[] = 'И это правильное слово!!! '.random_reaction().random_reaction().random_reaction();
+
+                // пометим как отгаданное
+                $this->db->updateRightWordsStatus($possible, $who);
+
+                // Проверим, что есть ещё слова, которые необходимо отгадать
+                if (!$this->db->getRightWordsUnguessed()) {
+                    $arr_words = $this->db->getRightWordsOpen();
+                    if ($arr_words) {
+                        $message[] = '';
+                        $message[] = 'Вы угадали все слова, вот ваши герои:';
+                        foreach ($arr_words as $value) {
+                            $message[] = $value['who']." - ".'"'.$value['text'].'"';
+                        }
+                        $message[] = '';
+                        $message[] = 'Теперь необходимо составить из них искомую фразу.';
+                    }
+                }
+            } else {
+                $message[] = 'И не угадал '.random_reaction();
+            }
+        } else { // Если нет, то сверяем только всё выражение
+
+            // Проверим, совпадает ли наше выражение
+            if ($this->db->getRightAnswerCheck($possible)) {
+                $message[] = '';
+                $message[] = 'И это Бинго!!!';
+                $message[] = 'Встречайте победителя '.random_reaction().random_reaction().random_reaction();
+
+                // пометим как отгаданное
+                $this->db->updateRightAnswerStatus($possible, $who);
+
+                // Проверим, что победитель, это Даша
+                if ($this->chat_id != 530979463) {
+                    $this->telegram->sendMessage(
+                      [
+                        'chat_id' => 530979463,
+                        'text' => '🍬 Приз за помощь... - Даша, прокричит вам спасибо в кружочек 😃' . random_reaction()
+                      ]
+                    );
+                }
+
+            } else {
+                $message[] = 'И не угадал '.random_reaction();
+            }
         }
 
-        // Проверка, на правильный ответ
-        if (!empty($answer) && $answer['text'] == ltrim(rtrim(mb_strtolower($this->telegram->Text())))) {
-            $this->send(
-              [
-                'text' => '🥳️❤🥳️Угадала !!!🥳️❤️🥳'
-              ]
-            );
-
-            $this->db->endRightAnswer($this->db->getNameByChatHistory($this->chat_id));
-        } else {
-            $phrases_messages = '';//$this->db->getPhrasesMessagesPrepared();
-
-            $num_attempts = $_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] - $count_answer - 1;
-            $string_attempts = rus_ending($num_attempts, 'попытка', 'попытки', 'попыток');
-
-            $this->send(
-              [
-                'text' => $phrases_messages.' '.random_reaction()
-                  .PHP_EOL.PHP_EOL.' Осталось '.$num_attempts.' '.$string_attempts.' на сегодня '.random_reaction()
-              ]
-            );
-        }
+        (new Message($this->telegram))->sendAll(implode("\n", $message));
     }
 }

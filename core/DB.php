@@ -310,7 +310,17 @@ class DB
 
         $result = $this->db->getOne("chat_history");
 
-        return $result['first_name'].' '.$result['last_name'].' @'.$result['user_name'];
+        $who = '';
+
+        if(!empty($result['first_name'])){
+            $who = $result['first_name'].' '.$result['last_name'];
+        }
+
+        if(empty($who)){
+            $who = '@'.$result['user_name'];
+        }
+
+        return $who;
     }
 
     // Right Answer -----------------------------------------------
@@ -327,17 +337,41 @@ class DB
         return $this->db->getOne("right_answers");
     }
 
-    /**
-     * @return bool
-     * @throws Exception
-     */
-    public function endRightAnswer($winner): bool
+    public function insertRightAnswer($word)
     {
-        return $this->db->update(
+        $this->db->insert(
           'right_answers',
           [
-            'status' => 0,
-            'winner' => $this->db->escape(trim($winner))
+            'text' => $word,
+            'status' => 0
+          ]
+        );
+    }
+
+    public function getRightAnswerUnguessed()
+    {
+        $this->db->where("status", 0);
+        return boolval($this->db->getOne("right_answers"));
+    }
+    public function getRightAnswerCheck($word)
+    {
+        // Почистим знаки препинания
+        $word = str_replace([',', '.'], '', $word);
+
+        $this->db->where("text", $word);
+
+        return boolval($this->db->getOne("right_answers"));
+    }
+    public function updateRightAnswerStatus($word, $who)
+    {
+        $this->db->where("text", $word);
+
+        $this->db->update(
+          'right_answers',
+          [
+            'status' => 1,
+            'date_added' => $this->db->now(),
+            'winner' => $who
           ]
         );
     }
@@ -397,17 +431,36 @@ class DB
     {
         $this->db->where("status", 1);
 
-        $arr = [];
-
-        foreach ($this->db->get("right_words") as $value){
-            $arr[] = $value['text'];
-        }
-
-        return $arr;
+        return $this->db->get("right_words");
     }
     public function getRightWordsCount()
     {
         return count($this->db->get("right_words"));
+    }
+    public function getRightWordsUnguessed()
+    {
+        $this->db->where("status", 0);
+        return boolval($this->db->getOne("right_words"));
+    }
+    public function getRightWordsCheck($word)
+    {
+        $this->db->where("text", $word);
+        $this->db->where("status", 0);
+
+        return boolval($this->db->getOne("right_words"));
+    }
+    public function updateRightWordsStatus($word, $who)
+    {
+        $this->db->where("text", $word);
+
+        $this->db->update(
+          'right_words',
+          [
+            'status' => 1,
+            'date_opening' => $this->db->now(),
+            'who' => $who
+          ]
+        );
     }
 
     // RightLetters ----------------------------------------------------
