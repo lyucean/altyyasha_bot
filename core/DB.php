@@ -546,7 +546,11 @@ class DB
 
         return $letters;
     }
-
+    public function getRightLettersnNotOpenCount()
+    {
+        $this->db->where("status", 0);
+        return count($this->db->get("right_letters"));
+    }
     public function addRightLetters(array $letters)
     {
         foreach ($letters as $letter) {

@@ -35,5 +35,11 @@ class Gift
             (new Message($this->telegram))->sendAll('🧛 ' . implode("\n", $message));
         }
 
+        $this->telegram->sendMessage(
+          [
+            'chat_id' => $this->chat_id,
+            'text' => 'Не открытых букв: '  . $this->db->getRightLettersnNotOpenCount()
+          ]
+        );
     }
 }
