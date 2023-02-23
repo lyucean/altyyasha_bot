@@ -29,8 +29,8 @@ class Insert
 
         // удалим саму команду
         $phrases = str_replace(['/insert', ',', '.'], '', $phrases);
-        // преобразуем регистр.
-        $phrases = mb_strtolower($phrases);
+        // преобразуем регистр и уберём пробелы
+        $phrases = trim(mb_strtolower($phrases));
 
         if (empty($phrases)) {
             return (new Error($this->telegram))->send('Фраза не может быть пустой!');
@@ -49,9 +49,8 @@ class Insert
 
         $this->db->addRightWords($arr_words);
 
-        $phrases = trim(str_replace(" ","",$phrases));
-
-        $arr_letters = preg_split('//u', $phrases, null, PREG_SPLIT_NO_EMPTY);
+        // Добавим буквы
+        $arr_letters = preg_split('//u', str_replace(" ","",$phrases), null, PREG_SPLIT_NO_EMPTY);
 
         shuffle($arr_letters);
 
@@ -61,15 +60,17 @@ class Insert
 
         $this->db->addRightLetters($arr_letters);
 
-        // запишем в базу слов, если она не пустая
+        // Добавим фразу в правильный ответ
+        $this->db->insertRightAnswer($phrases);
 
-
-
+        // сообщим
+        $message[] = '';
         $message[] = 'Добавил слова:';
         $message[] =  implode("\n", $arr_words);
 
-        $message[] = '________';
-        $message[] = 'Готово!';
+        $message[] = '';
+        $message[] = 'Правильный ответ:';
+        $message[] =  $phrases;
 
         $message[] = '';
         $this->telegram->sendMessage(
