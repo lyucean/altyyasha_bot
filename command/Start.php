@@ -67,7 +67,7 @@ class Start
         );
 
         // Откроем новую букву за присоединение.
-        $letter = $this->db->openRightLetter('new', $this->chat_id);
+        $letter = $this->db->openRightLetter('new_member', $this->chat_id);
 
         if(!empty($letter)){
 
@@ -77,7 +77,7 @@ class Start
             $message = ['Встречайте ещё одного игрока: ' . $who];
 
             $message[] = '';
-            $message[] = '👻 И ловите новую букву в подарок: "' . $letter . '"';
+            $message[] = 'И ловите новую букву в подарок: "' . $letter . '"';
 
             (new Message($this->telegram))->sendAll('🧛 ' . implode("\n", $message));
         }

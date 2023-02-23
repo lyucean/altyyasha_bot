@@ -475,7 +475,7 @@ class DB
             return null;
         }
 
-        if ($type == 'new') { // новый участник
+        if ($type == 'new_member') { // новый участник
 
             // проверим, что мы уже не выдавали ему букву
             $this->db->where('chat_id', $chat_id);
@@ -494,6 +494,23 @@ class DB
                 );
                 return $letter['text'];
             }
+        }
+
+        if ($type == 'guessed_word') { // новый участник
+
+            // пометим её как открытую
+            $this->db->where("letters_id", $letter['letters_id']);
+
+            $this->db->update(
+              'right_letters',
+              [
+                'status' => 1,
+                'date_send' => $this->db->now(),
+                'reason' => 'Угадал слово',
+                'chat_id' => $chat_id
+              ]
+            );
+            return $letter['text'];
         }
 
         return null;

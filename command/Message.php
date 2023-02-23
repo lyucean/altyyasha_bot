@@ -127,7 +127,7 @@ class Message
         // Сообщаем, что пользователь предложил вариант
         $who = $this->db->getNameByChatHistory($this->chat_id);
 
-        $message[] = 'Вариант от '.$who.' '.'"'.$possible.'"';
+        $message[] = 'Вариант от '.$who.': '.'"'.$possible.'"';
 
         // Если не отгаданы все слова, то проверка идёт на слова
         if ($this->db->getRightWordsUnguessed()) {
@@ -138,6 +138,15 @@ class Message
 
                 // пометим как отгаданное
                 $this->db->updateRightWordsStatus($possible, $who);
+
+                // Откроем новую букву за угаданное слово.
+                $letter = $this->db->openRightLetter('guessed_word', $this->chat_id);
+
+                if(!empty($letter)){
+
+                    $message[] = '';
+                    $message[] = 'Ловите новую букву в подарок: "' . $letter . '"';
+                }
 
                 // Проверим, что есть ещё слова, которые необходимо отгадать
                 if (!$this->db->getRightWordsUnguessed()) {
