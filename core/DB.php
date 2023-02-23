@@ -513,6 +513,24 @@ class DB
             return $letter['text'];
         }
 
+
+        if ($type == 'gift') { // новый участник
+
+            // пометим её как открытую
+            $this->db->where("letters_id", $letter['letters_id']);
+
+            $this->db->update(
+              'right_letters',
+              [
+                'status' => 1,
+                'date_send' => $this->db->now(),
+                'reason' => 'Подарок',
+                'chat_id' => $chat_id
+              ]
+            );
+            return $letter['text'];
+        }
+
         return null;
     }
 
