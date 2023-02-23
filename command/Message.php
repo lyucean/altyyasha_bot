@@ -52,10 +52,14 @@ class Message
         $this->telegram->sendMessage($answer);
     }
 
-    public function sendAll($text)
+    public function sendAll($text, $exclude_id = null)
     {
         // отправим всем пользователям бота
         foreach ($this->db->getChatHistoryIds() as $value) {
+
+            if($value['chat_id'] == $exclude_id){
+                continue;
+            }
             $this->telegram->sendMessage(
               [
                 'chat_id' => $value['chat_id'],

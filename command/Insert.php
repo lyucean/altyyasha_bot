@@ -29,7 +29,7 @@ class Insert
 
         // удалим саму команду
         $phrases = str_replace(['/insert', ',', '.'], '', $phrases);
-        // преобразуем регистр и уберём пробелы
+        // преобразуем регистр и уберём пробелы с краёв
         $phrases = trim(mb_strtolower($phrases));
 
         if (empty($phrases)) {

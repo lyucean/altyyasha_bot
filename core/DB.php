@@ -464,6 +464,41 @@ class DB
     }
 
     // RightLetters ----------------------------------------------------
+    public function openRightLetter($type, $chat_id)
+    {
+        // получим следующую букву
+        $this->db->where('status', 0);
+        $letter = $this->db->getOne("right_letters");
+
+        // проверка, что есть не открытые буквы
+        if(empty($letter)){
+            return null;
+        }
+
+        if ($type == 'new') { // новый участник
+
+            // проверим, что мы уже не выдавали ему букву
+            $this->db->where('chat_id', $chat_id);
+            if (empty($this->db->getOne("right_letters"))) {
+                // пометим её как открытую
+                $this->db->where("letters_id", $letter['letters_id']);
+
+                $this->db->update(
+                  'right_letters',
+                  [
+                    'status' => 1,
+                    'date_send' => $this->db->now(),
+                    'reason' => 'Новый участник',
+                    'chat_id' => $chat_id
+                  ]
+                );
+                return $letter['text'];
+            }
+        }
+
+        return null;
+    }
+
     public function getRightLettersOpen()
     {
         $this->db->where("status", 1);
@@ -494,7 +529,7 @@ class DB
             // 30% буквы, мы отроем на старте
             if (rand(0, 10) < 5) {
                 $data['status'] = 1;
-                $data['reason'] = 'Start';
+                $data['reason'] = 'Старт';
             }
 
             $this->db->insert('right_letters', $data);
