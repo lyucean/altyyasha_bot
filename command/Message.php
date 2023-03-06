@@ -94,9 +94,9 @@ class Message
         }
 
         // Проверка, что количество запросов за сегодня не больше MAX_NUM_ATTEMPTS_PER_DAY
- /*       if ($_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] < $this->db->getMessagesToday($this->chat_id)) {
-            return (new Error($this->telegram))->send('Достигнут лимит попыток угадать на сегодня! '. random_reaction());
-        }*/
+//        if ($_ENV['MAX_NUM_ATTEMPTS_PER_DAY'] < $this->db->getMessagesToday($this->chat_id)) {
+//            return (new Error($this->telegram))->send('Достигнут лимит попыток угадать на сегодня! '. random_reaction());
+//        }
 
         // проверим, что игра ещё продолжается
         if (!$this->db->getRightAnswerUnguessed()) {
@@ -162,7 +162,7 @@ class Message
                     }
                 }
             } else {
-                $message[] = 'И не угадал '.random_reaction();
+                $message[] = 'И такого слова нет '.random_reaction();
             }
         } else { // Если нет, то сверяем только всё выражение
 
@@ -186,7 +186,7 @@ class Message
                 }
 
             } else {
-                $message[] = 'И не угадал '.random_reaction();
+                $message[] = 'И поиски всё ещё продолжаются '.random_reaction();
             }
         }
 
